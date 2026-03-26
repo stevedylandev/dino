@@ -1,0 +1,16 @@
+{
+  "name": "dino",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "build": "bun build ./index.html --outdir ./dist && cp -r ./public/assets ./dist/assets"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

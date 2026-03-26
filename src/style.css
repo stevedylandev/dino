@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+body {
+  background-color: #121113;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 0 16px;
+  display: flex;
+  justify-content: center;
+}
+
+#game-container canvas {
+  width: 100%;
+  aspect-ratio: 4 / 1;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
