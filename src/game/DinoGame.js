@@ -68,12 +68,8 @@ export default class DinoGame extends GameRunner {
       },
     }
 
-    this.eventLog = []
+    this.gameToken = null
     this.onGameOver = null
-  }
-
-  _recordEvent(data) {
-    this.eventLog.push({ ...data, frame: this.frameCount, ts: Date.now() })
   }
 
   createCanvas(width, height) {
@@ -146,7 +142,6 @@ export default class DinoGame extends GameRunner {
       case 'jump': {
         if (state.isRunning) {
           if (state.dino.jump()) {
-            this._recordEvent({ type: 'JUMP' })
             playSound('jump')
           }
         } else {
@@ -160,7 +155,6 @@ export default class DinoGame extends GameRunner {
       case 'duck': {
         if (state.isRunning) {
           state.dino.duck(true)
-          this._recordEvent({ type: 'DUCK' })
         }
         break
       }
@@ -168,7 +162,6 @@ export default class DinoGame extends GameRunner {
       case 'stop-duck': {
         if (state.isRunning) {
           state.dino.duck(false)
-          this._recordEvent({ type: 'STAND' })
         }
         break
       }
@@ -177,8 +170,10 @@ export default class DinoGame extends GameRunner {
 
   resetGame() {
     this.frameCount = 0
-    this.eventLog = []
-    this._recordEvent({ type: 'START' })
+    this.gameToken = fetch('/api/challenge')
+      .then(r => r.json())
+      .then(d => d.token)
+      .catch(() => null)
 
     this.state.dino.reset()
     Object.assign(this.state, {
@@ -200,9 +195,8 @@ export default class DinoGame extends GameRunner {
   }
 
   endGame() {
-    this._recordEvent({ type: 'END', score: this.state.score.value })
     if (typeof this.onGameOver === 'function') {
-      this.onGameOver(this.state.score.value, this.eventLog)
+      this.onGameOver(this.state.score.value, this.gameToken)
     }
 
     const iconSprite = sprites.replayIcon
@@ -275,7 +269,6 @@ export default class DinoGame extends GameRunner {
       state.level = Math.floor(state.score.value / 100)
 
       if (state.level !== oldLevel) {
-        this._recordEvent({ type: 'LEVEL', value: state.level })
         playSound('level-up')
         this.increaseDifficulty()
         state.score.isBlinking = true

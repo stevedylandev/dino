@@ -90,7 +90,7 @@ const overlayState = {
   submitting: false,
   submittedInitials: '',
   currentScore: 0,
-  currentEventLog: [],
+  currentToken: null,
 }
 
 function escapeHtml(text) {
@@ -107,13 +107,13 @@ function isTopTenScore(score) {
   return score > lowestTopScore
 }
 
-function showOverlay(score, eventLog) {
+function showOverlay(score, tokenPromise) {
   overlayState.visible = true
   overlayState.submitted = false
   overlayState.submitting = false
   overlayState.submittedInitials = ''
   overlayState.currentScore = score
-  overlayState.currentEventLog = eventLog
+  overlayState.currentToken = tokenPromise
 
   modalTitle.textContent = 'GAME OVER'
   finalScoreDisplay.textContent = `SCORE: ${score}`
@@ -138,7 +138,7 @@ function showOverlay(score, eventLog) {
 function hideOverlay() {
   overlayState.visible = false
   overlayState.currentScore = 0
-  overlayState.currentEventLog = []
+  overlayState.currentToken = null
   overlay.style.display = 'none'
 }
 
@@ -158,13 +158,22 @@ async function submitScore() {
   submitBtn.disabled = true
 
   try {
+    const token = await overlayState.currentToken
+    if (!token) {
+      modalTitle.textContent = 'SESSION ERROR'
+      overlayState.submitting = false
+      submitBtn.disabled = false
+      submitBtn.textContent = 'SUBMIT'
+      return
+    }
+
     const res = await fetch('/api/scores', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         playerName: initials,
         score: overlayState.currentScore,
-        eventLog: overlayState.currentEventLog,
+        token,
       }),
     })
 
@@ -272,8 +281,8 @@ function renderLeaderboard(data) {
   }
 }
 
-game.onGameOver = (score, eventLog) => {
-  setTimeout(() => showOverlay(score, eventLog), 300)
+game.onGameOver = (score, tokenPromise) => {
+  setTimeout(() => showOverlay(score, tokenPromise), 300)
 }
 
 document.addEventListener('keydown', (e) => {
