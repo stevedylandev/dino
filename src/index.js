@@ -211,6 +211,10 @@ async function loadLeaderboard(forceRefresh = false) {
 
   try {
     const res = await fetch('/api/scores')
+    if (!res.ok) {
+      leaderboardList.innerHTML = '<p class="error">FAILED TO LOAD</p>'
+      return
+    }
     const data = await res.json()
 
     leaderboardCache.data = data

@@ -195,8 +195,9 @@ function validateEventLog(eventLog, claimedScore, playerName) {
     }
   }
 
-  // Level cap validation
-  const maxLevel = Math.floor(expectedScore / GAME_CONFIG.LEVEL_SCORE_THRESHOLD)
+  // Level cap validation (use claimedScore — it's validated within ±1 of expectedScore
+  // and avoids off-by-one at level boundaries from frame-counting timing)
+  const maxLevel = Math.floor(claimedScore / GAME_CONFIG.LEVEL_SCORE_THRESHOLD)
   if (prevLevel > maxLevel) {
     return { ok: false, reason: 'LEVEL_TOO_HIGH' }
   }
