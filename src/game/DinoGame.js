@@ -356,18 +356,21 @@ export default class DinoGame extends GameRunner {
         newBird.speed = settings.birdSpeed
         newBird.wingsRate = settings.birdWingsRate
         newBird.x = this.width
-        // ensure birds are always at least 5px higher than a ducking dino
-        newBird.y =
+        // lowest y: just above a ducking dino
+        const minY =
           this.height -
           Bird.maxBirdHeight -
           Bird.wingSpriteYShift -
           5 -
           sprites.dinoDuckLeftLeg.h / 2 -
           settings.dinoGroundOffset
+        // highest y: near top of canvas
+        const maxY = 20
+        newBird.y = randInteger(maxY, minY)
         birds.push(newBird)
       }
     }
-    this.paintInstances(birds)
+    this.paintBirdInstances(birds)
   }
 
   drawScore() {
@@ -425,6 +428,19 @@ export default class DinoGame extends GameRunner {
   paintInstances(instances) {
     for (const instance of instances) {
       this.paintSprite(instance.sprite, instance.x, instance.y)
+    }
+  }
+
+  paintBirdInstances(instances) {
+    const { canvasCtx } = this
+    for (const instance of instances) {
+      const { h, w, x, y } = sprites[instance.sprite]
+      const drawW = w / 2
+      const drawH = h / 2
+      canvasCtx.save()
+      canvasCtx.scale(-1, 1)
+      canvasCtx.drawImage(this.spriteImage, x, y, w, h, -(instance.x + drawW), instance.y, drawW, drawH)
+      canvasCtx.restore()
     }
   }
 

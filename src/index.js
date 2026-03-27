@@ -99,6 +99,14 @@ function escapeHtml(text) {
   return div.innerHTML
 }
 
+function isTopTenScore(score) {
+  if (!leaderboardCache.data || !leaderboardCache.data.scores) return true
+  const scores = leaderboardCache.data.scores
+  if (scores.length < 10) return true
+  const lowestTopScore = scores[scores.length - 1].score
+  return score > lowestTopScore
+}
+
 function showOverlay(score, eventLog) {
   overlayState.visible = true
   overlayState.submitted = false
@@ -110,13 +118,20 @@ function showOverlay(score, eventLog) {
   modalTitle.textContent = 'GAME OVER'
   finalScoreDisplay.textContent = `SCORE: ${score}`
   initialsInput.value = ''
-  submitSection.style.display = ''
   initialsInput.disabled = false
   submitBtn.disabled = false
   submitBtn.textContent = 'SUBMIT'
   overlay.style.display = ''
+
+  const qualifies = isTopTenScore(score)
+  submitSection.style.display = qualifies ? '' : 'none'
+
   updateFocusTrap()
-  initialsInput.focus()
+  if (qualifies) {
+    initialsInput.focus()
+  } else {
+    actionBtn.focus()
+  }
   loadLeaderboard(false) // Use cache if available
 }
 
