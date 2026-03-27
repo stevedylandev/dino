@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS scores (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_name TEXT    NOT NULL,
+  score       INTEGER NOT NULL,
+  end_frame   INTEGER NOT NULL,
+  duration_ms INTEGER NOT NULL,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_scores_score ON scores (score DESC);

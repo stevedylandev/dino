@@ -13,6 +13,7 @@ import {
   randInteger,
 } from '../utils.js'
 import GameRunner from './GameRunner.js'
+import { GAME_CONFIG } from '../config.js'
 
 export default class DinoGame extends GameRunner {
   constructor(width, height, container) {
@@ -45,7 +46,7 @@ export default class DinoGame extends GameRunner {
       dinoLegsRate: 6, // fpa
       dinoLift: 10, // ppf
       scoreBlinkRate: 20, // fpa
-      scoreIncreaseRate: 6, // fpa
+      scoreIncreaseRate: GAME_CONFIG.SCORE_INCREASE_RATE, // fpa
     }
 
     this.state = {
@@ -66,6 +67,13 @@ export default class DinoGame extends GameRunner {
         value: 0,
       },
     }
+
+    this.eventLog = []
+    this.onGameOver = null
+  }
+
+  _recordEvent(data) {
+    this.eventLog.push({ ...data, frame: this.frameCount, ts: Date.now() })
   }
 
   createCanvas(width, height) {
@@ -138,6 +146,7 @@ export default class DinoGame extends GameRunner {
       case 'jump': {
         if (state.isRunning) {
           if (state.dino.jump()) {
+            this._recordEvent({ type: 'JUMP' })
             playSound('jump')
           }
         } else {
@@ -151,6 +160,7 @@ export default class DinoGame extends GameRunner {
       case 'duck': {
         if (state.isRunning) {
           state.dino.duck(true)
+          this._recordEvent({ type: 'DUCK' })
         }
         break
       }
@@ -158,6 +168,7 @@ export default class DinoGame extends GameRunner {
       case 'stop-duck': {
         if (state.isRunning) {
           state.dino.duck(false)
+          this._recordEvent({ type: 'STAND' })
         }
         break
       }
@@ -165,6 +176,10 @@ export default class DinoGame extends GameRunner {
   }
 
   resetGame() {
+    this.frameCount = 0
+    this.eventLog = []
+    this._recordEvent({ type: 'START' })
+
     this.state.dino.reset()
     Object.assign(this.state, {
       settings: { ...this.defaultSettings },
@@ -185,6 +200,11 @@ export default class DinoGame extends GameRunner {
   }
 
   endGame() {
+    this._recordEvent({ type: 'END', score: this.state.score.value })
+    if (typeof this.onGameOver === 'function') {
+      this.onGameOver(this.state.score.value, this.eventLog)
+    }
+
     const iconSprite = sprites.replayIcon
     const padding = 15
 
@@ -255,6 +275,7 @@ export default class DinoGame extends GameRunner {
       state.level = Math.floor(state.score.value / 100)
 
       if (state.level !== oldLevel) {
+        this._recordEvent({ type: 'LEVEL', value: state.level })
         playSound('level-up')
         this.increaseDifficulty()
         state.score.isBlinking = true

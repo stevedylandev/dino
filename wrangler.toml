@@ -1,0 +1,8 @@
+name = "dino"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dino-scores"
+database_id = "fd10c71f-a539-49f6-ad85-39fa943f4d3c"
