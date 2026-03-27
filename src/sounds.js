@@ -3,13 +3,24 @@ const audioContext = new AudioContext()
 const soundNames = ['game-over', 'jump', 'level-up']
 const soundBuffers = {}
 let SOUNDS_LOADED = false
+let muted = localStorage.getItem('dino-muted') === 'true'
 
 loadSounds().catch(console.error)
 export function playSound(name) {
-  if (SOUNDS_LOADED) {
+  if (SOUNDS_LOADED && !muted) {
     audioContext.resume()
     playBuffer(soundBuffers[name])
   }
+}
+
+export function isMuted() {
+  return muted
+}
+
+export function toggleMute() {
+  muted = !muted
+  localStorage.setItem('dino-muted', muted)
+  return muted
 }
 
 async function loadSounds() {

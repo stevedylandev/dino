@@ -1,4 +1,5 @@
 import DinoGame from './game/DinoGame.js'
+import { toggleMute } from './sounds.js'
 
 const game = new DinoGame(600, 150, document.getElementById('game-container'))
 
@@ -75,11 +76,10 @@ overlay.addEventListener('keydown', (e) => {
   }
 })
 
-// Touch to dismiss overlay (tap background)
+// Touch to dismiss overlay (tap background) - only closes modal, doesn't restart
 overlay.addEventListener('click', (e) => {
   if (e.target === overlay && overlayState.visible) {
     hideOverlay()
-    game.onInput('jump')
   }
 })
 
@@ -281,6 +281,19 @@ function renderLeaderboard(data) {
   }
 }
 
+const cheatsheet = document.getElementById('cheatsheet')
+let cheatsheetTimer = null
+
+game.onGameStart = () => {
+  cheatsheet.classList.remove('hidden')
+  touchZones.classList.remove('hidden')
+  clearTimeout(cheatsheetTimer)
+  cheatsheetTimer = setTimeout(() => {
+    cheatsheet.classList.add('hidden')
+    touchZones.classList.add('hidden')
+  }, 2000)
+}
+
 game.onGameOver = (score, tokenPromise) => {
   setTimeout(() => showOverlay(score, tokenPromise), 300)
 }
@@ -293,16 +306,14 @@ document.addEventListener('keydown', (e) => {
       game.onInput('duck')
     }
   } else {
-    // Escape key closes modal
+    // Escape key closes modal only (must press Play Again to restart)
     if (e.key === 'Escape') {
       hideOverlay()
-      game.onInput('jump')
       return
     }
-    // Space/Enter closes only if not in input field
+    // Space/Up closes modal only if not in input field (must press Play Again to restart)
     if (document.activeElement !== initialsInput && keycodes.JUMP[e.keyCode]) {
       hideOverlay()
-      game.onInput('jump')
     }
   }
 })
@@ -313,25 +324,38 @@ document.addEventListener('keyup', (e) => {
   }
 })
 
-document.addEventListener(
+const touchZones = document.getElementById('touch-zones')
+const touchDuck = document.getElementById('touch-duck')
+const touchJump = document.getElementById('touch-jump')
+
+touchDuck.addEventListener(
   'touchstart',
   (e) => {
-    if (!overlayState.visible) {
-      e.preventDefault()
-      if (e.touches.length === 1) {
-        game.onInput('jump')
-      } else if (e.touches.length === 2) {
-        game.onInput('duck')
-      }
-    }
+    e.preventDefault()
+    if (!overlayState.visible) game.onInput('duck')
   },
   { passive: false }
 )
 
-document.addEventListener('touchend', (e) => {
-  if (!overlayState.visible) {
-    game.onInput('stop-duck')
+touchDuck.addEventListener('touchend', (e) => {
+  if (!overlayState.visible) game.onInput('stop-duck')
+})
+
+touchJump.addEventListener(
+  'touchstart',
+  (e) => {
+    e.preventDefault()
+    if (!overlayState.visible) game.onInput('jump')
+  },
+  { passive: false }
+)
+
+// Mute toggle with 'M' key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'm' || e.key === 'M') {
+    toggleMute()
   }
 })
 
 game.start().catch(console.error)
+loadLeaderboard(false)

@@ -70,6 +70,7 @@ export default class DinoGame extends GameRunner {
 
     this.gameToken = null
     this.onGameOver = null
+    this.onGameStart = null
   }
 
   createCanvas(width, height) {
@@ -190,6 +191,10 @@ export default class DinoGame extends GameRunner {
         value: 0,
       },
     })
+
+    if (typeof this.onGameStart === 'function') {
+      this.onGameStart()
+    }
 
     this.start()
   }
