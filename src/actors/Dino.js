@@ -14,6 +14,7 @@ export default class Dino extends Actor {
     this.legsRate = null
     this.lift = null
     this.gravity = null
+    this.fastFallMultiplier = 4
   }
 
   get y() {
@@ -48,7 +49,8 @@ export default class Dino extends Actor {
   nextFrame() {
     if (this.vVelocity !== null) {
       // use gravity to gradually decrease vVelocity
-      this.vVelocity += this.gravity
+      const gravityForce = this.isDucking ? this.gravity * this.fastFallMultiplier : this.gravity
+      this.vVelocity += gravityForce
       this.relativeY += this.vVelocity
     }
 
