@@ -1,16 +1,18 @@
 # dino
 
-A port of [chrisdothtml/chrome-dino](https://github.com/chrisdothtml/chrome-dino)
+![cover](https://files.stevedylan.dev/dino-demo.png)
 
-To install dependencies:
+A web-based port of the Chrome dinosaur game, based on [chrisdothtml/chrome-dino](https://github.com/chrisdothtml/chrome-dino). Includes sound, a leaderboard, and mobile support.
+
+Try it out at [dino.stevedylan.dev](https://dino.stevedylan.dev)
+
+## Development
 
 ```bash
 bun install
-```
-
-To run:
-
-```bash
 bun dev
 ```
 
+## License
+
+MIT
