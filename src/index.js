@@ -210,6 +210,12 @@ initialsInput.addEventListener('keydown', (e) => {
     submitScore()
   }
 })
+// Prevent spacebar from natively activating buttons (which would restart the game)
+actionBtn.addEventListener('keydown', (e) => {
+  if (e.key === ' ') {
+    e.preventDefault()
+  }
+})
 
 // Leaderboard caching
 const leaderboardCache = {
@@ -311,8 +317,9 @@ document.addEventListener('keydown', (e) => {
       hideOverlay()
       return
     }
-    // Space/Up closes modal only if not in input field (must press Play Again to restart)
-    if (document.activeElement !== initialsInput && keycodes.JUMP[e.keyCode]) {
+    // Space/Up closes modal only if focus is outside the modal (must press Play Again to restart)
+    const modal = document.getElementById('score-modal')
+    if (!modal.contains(document.activeElement) && keycodes.JUMP[e.keyCode]) {
       hideOverlay()
     }
   }
